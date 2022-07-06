@@ -10,9 +10,16 @@
         integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
 
   <!-- google Icons CSS-->
-  <link
-          href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp"
-          rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+        rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined"
+        rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Rounded"
+        rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp"
+        rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Twotone"
+        rel="stylesheet">
 
   <!-- JQuery-->
   <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
@@ -261,14 +268,45 @@
 {#모달 박스#}
 <div class="modal_overlay">
   <div class="modal_window">
+    <div style="display: flex; flex-direction: row; justify-content: space-between;">
+      <div style="width: 40px;"></div>
+      <div>
+        새 이미지 업로드
+      </div>
+      <div style="width: 40px;">
+        <span class="material-icons-outlined" id="modal_close">close</span>
+      </div>
+    </div>
+    <div class="img_upload_space" style="background: orange; width: 100%; height: 95%;"></div>
   </div>
 </div>
 <!-- Optional JavaScript; choose one of the two! -->
 <!-- 버튼 자바스크립트 -->
 <script>
-  $('#nav_bar_add_box').click(function() {
-    $('.modal_overlay').css({display:'flex', overflowY: 'hidden'})
-  })
+  $('#nav_bar_add_box').click(function () {
+    $('.modal_overlay').css({display: 'flex'})
+    $('body').css({overflowY: 'hidden'})
+  });
+
+  $('#modal_close').click(function () {
+    $('.modal_overlay').css({display: 'none'})
+    $('body').css({overflowY: 'scroll'})
+  });
+
+  $('.img_upload_space')
+    .on("dragover", dragOver)
+    .on("dragleave", dragOver)
+    .on("drop", uploadFiles);
+
+  function dragOver(e) {
+    e.stopPropagation();
+    e.preventDefault();
+  }
+
+  function uploadFiles(e) {
+    e.stopPropagation();
+    e.preventDefault();
+  }
 </script>
 
 <!-- Option 1: Bootstrap Bundle with Popper -->
