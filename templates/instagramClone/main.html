@@ -18,8 +18,6 @@
         rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp"
         rel="stylesheet">
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Twotone"
-        rel="stylesheet">
 
   <!-- JQuery-->
   <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
@@ -28,6 +26,11 @@
     input:focus {
       outline: none;
       box-shadow: none;
+    }
+
+    #nav_bar_add_box,
+    .modal_close:hover {
+      cursor: pointer;
     }
 
     .modal_overlay {
@@ -265,8 +268,23 @@
 </div>
 
 
-{#모달 박스#}
-<div class="modal_overlay">
+{# 첫 번째 모달 박스 - 이미지 업로드 #}
+<div class="modal_overlay" id="first_modal">
+  <div class="modal_window">
+    <div style="border-bottom: 1px solid gray; display: flex; flex-direction: row; justify-content: space-between;">
+      <div style="width: 40px;"></div>
+      <div>
+        새 이미지 업로드
+      </div>
+      <div style="width: 40px;">
+        <span class="material-icons-outlined modal_close">close</span>
+      </div>
+    </div>
+    <div class="img_upload_space" style="width: 100%; height: 95%;"></div>
+  </div>
+</div>
+{# 두 번째 모달 박스 - 글 작성 #}
+<div class="modal_overlay" id="second_modal">
   <div class="modal_window">
     <div style="display: flex; flex-direction: row; justify-content: space-between;">
       <div style="width: 40px;"></div>
@@ -274,38 +292,128 @@
         새 이미지 업로드
       </div>
       <div style="width: 40px;">
-        <span class="material-icons-outlined" id="modal_close">close</span>
+        <span class="material-icons-outlined modal_close">close</span>
       </div>
     </div>
-    <div class="img_upload_space" style="background: orange; width: 100%; height: 95%;"></div>
+
+    <div style="border-top: 1px solid gray; display: flex; flex-direction: row; margin-top: 10px;">
+      <div class="img_upload_space" style="width: 500px; height: 540px;">
+
+      </div>
+      <div style="border-left: 1px solid gray;">
+        <div>
+          <textarea id="input_feed_content" class="form-control" style="width: 276px; height:400px;"
+                    id="exampleFormControlTextarea1"
+                    rows="3"></textarea>
+        </div>
+        <button id="feed_create_button" type="button" class="btn btn-primary">
+          공유하기
+        </button>
+      </div>
+    </div>
+
   </div>
 </div>
 <!-- Optional JavaScript; choose one of the two! -->
-<!-- 버튼 자바스크립트 -->
 <script>
+  let files;
+
+  // 버튼 자바스크립트
+
+  // 새 이미지 등록
   $('#nav_bar_add_box').click(function () {
-    $('.modal_overlay').css({display: 'flex'})
+    $('#first_modal').css({display: 'flex'})
     $('body').css({overflowY: 'hidden'})
   });
 
-  $('#modal_close').click(function () {
+  // 새 이미지 등록창 닫기
+  $('.modal_close').click(function () {
     $('.modal_overlay').css({display: 'none'})
     $('body').css({overflowY: 'scroll'})
   });
 
+  // 파일 업로드 자바스크립트
   $('.img_upload_space')
-    .on("dragover", dragOver)
-    .on("dragleave", dragOver)
-    .on("drop", uploadFiles);
+      .on("dragover", dragOver)
+      .on("dragleave", dragOver)
+      .on("drop", uploadFiles);
 
   function dragOver(e) {
     e.stopPropagation();
     e.preventDefault();
+    if (e.type == "dragover") {
+      $(e.target).css({
+        "border": "2px dotted gray",
+
+        "outline-offset": "-10px"
+      });
+    } else {
+      $(e.target).css({
+        "outline-offset": "-10px"
+      });
+    }
   }
 
   function uploadFiles(e) {
     e.stopPropagation();
     e.preventDefault();
+
+    e.dataTransfer = e.originalEvent.dataTransfer;
+    files = e.target.files || e.dataTransfer.files;
+
+    if (files.length > 1) {
+      alert("파일은 하나만 올리세요");
+      return;
+    }
+
+    if (files[0].type.match(/image.*/)) {
+      $('#first_modal').css({"display": "none"})
+      $('#second_modal').css({"display": "flex"})
+
+      $('#feed_create_button').click(function () {
+        alert("공유하기를 눌렀습니다.")
+
+        let file = files;
+        let image = files[0].name;
+        let content = $('#input_feed_content').val();
+        let user_id = 'kkammoo_';
+        let profile_image = 'https://mblogthumb-phinf.pstatic.net/20150202_99/chaejhh_1422874976569skK38_JPEG/%3F%3F%3F%3F%3F_edit.jpg?type=w2';
+
+
+        let fd = new FormData();
+
+        fa.append('file', file);
+        fa.append('image', image);
+        fa.append('content', content);
+        fa.append('user_id', user_id);
+        fa.append('profile_image', profile_image);
+
+        $.ajax({
+          url: "/content/upload",
+          data: fd,
+          method: 'POST',
+          success: function (data) {
+            console.log('성공');
+            console.log(data);
+          },
+          error: function (request, status, error) {
+            console.log('에러');
+          },
+          compile: function () {
+            console.log('완료');
+          }
+        })
+      });
+
+      $('.img_upload_space').css({
+        "background-image": "url(" + window.URL.createObjectURL(files[0]) + ")",
+        "outline": "none",
+        "background-size": "100% 100%"
+      });
+    } else {
+      alert('이미지가 아닙니다.');
+    }
+
   }
 </script>
 
