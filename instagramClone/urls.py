@@ -24,7 +24,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('main/', Main.as_view()),
     # path('', UploadFeed.as_view())
-    path('', include('content.urls'))
+    path('content/', include('content.urls')),
+    path('user/', include('user.urls'))
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

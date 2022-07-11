@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from instagramClone.settings import MEDIA_ROOT
+from user.models import User
 from .models import Feed
 
 
@@ -18,11 +19,15 @@ class Main(APIView):
         # select * from content_feed (둥록된 순으로 출력 - 최근이 가장 아래)
         # order by로 오름차순, 내림차순으로 정렬 가능 (디폴트는 오름차순, - 붙이면 내림차순)
         feed_list = Feed.objects.all().order_by('-id')
-        print(feed_list)
-        for feed in feed_list:
-            print(feed.content)
+        email = request.session['email']
+        print('로그인한 사용자 : ' + email)
+        if email is None:
+            return render(request, "user/login.html")
+        elif user is None:
 
-        return render(request, "instagramClone/main.html", context=dict(feed_list=feed_list))
+        user = User.objects.filter(email=email).first()
+
+        return render(request, "instagramClone/main.html", context=dict(feeds=feed_list, user=user))
 
 
 class UploadFeed(APIView):
