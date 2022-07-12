@@ -48,6 +48,7 @@
       background: rgba(0, 0, 0, 0.8);
       backdrop-filter: blur(1.5px);
       -webkit-backdrop-filter: blur(1.5px);
+      z-index: 1000
     }
 
     .modal_window {
@@ -65,7 +66,7 @@
 
   <title>Instagram Clone</title>
 </head>
-<body style="background-color: #fafafa;">
+<body>
 {# MVT 테스트 #}
 {#<div>#}
 {#  {% for feed in feed_list %}#}
@@ -76,34 +77,59 @@
 {#</div>#}
 
 {#상단 nav bar#}
-<nav class="navbar navbar-expand-lg navbar-light bg-light" style="position:fixed; width: 100%">
+{#세션 정보 테스트#}
+{#<div>#}
+{#  {{ user.email }}#}
+{#  {{ user.name }}#}
+{#  {{ user.nickname }}#}
+{#  {{ user.profile_image }}#}
+{#</div>#}
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light"
+     style="position:fixed; width: 100%; background-color: #fafafa; z-index: 999">
   <div class="container-fluid" style="justify-content: space-between; flex-wrap: nowrap; min-width: 1000px">
-    <a class="navbar-brand" href="#"><img style="width:100px"
-                                          src="https://fontmeme.com/images/instagram-new-logo.png" alt=""></a>
+    <a class="navbar-brand" href="/main"><img style="width:100px" src="/media/insta_logo.png" alt=""></a>
     <input class="form-control me-2" style="width:400px" type="search" placeholder="Search" aria-label="Search">
-    <div>
-      <span class="material-icons">home</span>
-      <span class="material-icons-outlined">send</span>
-      <span class="material-icons-outlined" id="nav_bar_add_box">add_box</span>
-      <span class="material-icons-outlined">explore</span>
-      <span class="material-icons-outlined">favorite_border</span>
+    <div style="display: flex;">
+      <a href="/main" style="color: black;"><span class="material-icons" style="padding-right: 10px;">home</span></a>
+      <span class="material-icons-outlined" id="nav_bar_add_box" style="padding-right: 10px;">add_box</span>
+      <div class="dropdown">
+        <a href="#" role="button" id="dropdownMenuLink"
+           data-bs-toggle="dropdown" aria-expanded="false">
+          <div style="width: 28px; height: 28px; border-radius: 70%; overflow: hidden;">
+            <img src="{% get_media_prefix %}{{ user.profile_image }}"
+                 style="width: 100%; height: 100%; object-fit: cover;"/>
+          </div>
+        </a>
+
+        <ul class="dropdown-menu" style="left:-158px;" aria-labelledby="dropdownMenuLink">
+          <li><a class="dropdown-item" href="/content/profile">프로필</a></li>
+          <li>
+            <hr class="dropdown-divider">
+          </li>
+          <li><a class="dropdown-item" href="/user/logout">로그아웃</a></li>
+
+        </ul>
+      </div>
+
+
     </div>
   </div>
 </nav>
 
 {#게시물 피드#}
-<div style="display: flex; flex-direction: row; text-align: center; justify-content: center; padding-top: 70px; margin: 0 auto;">
+<div style="display: flex; flex-direction: row; text-align: center; justify-content: center; padding-top: 100px; margin: 0 auto;">
   {#피드 왼쪽 컨텐츠#}
   <div style="width: 600px; min-width: 600px; height: 1000px; margin-right: 30px">
     {% for feed in feed_list %}
       <div style="border: 1px solid rgba(25,25,25,0.3);border-radius: 10px;background-color: white; margin-bottom:20px;">
         <div style="display: flex; flex-direction: row; align-items: center; margin: 10px;">
           <div style="width: 42px; height: 42px; border-radius: 70%; overflow: hidden;">
-            <img src="{{ feed.profile_image }}"
+            <img src="{% get_media_prefix %}{{ feed.profile_image }}"
                  style="width: 100%; height: 100%; object-fit: cover;">
           </div>
           <div style="margin-left: 20px;">
-            <b>{{ feed.user_id }}</b>
+            <b>{{ feed.nickname }}</b>
           </div>
         </div>
         <div>
@@ -122,7 +148,7 @@
         </div>
         <div style="text-align: left; font-size: 14px; margin-left: 20px;">춘식이 <b>외 {{ feed.like_count }}명</b>이 좋아합니다.
         </div>
-        <div style="text-align: left; margin-left: 20px;"><b>{{ feed.user_id }}</b> {{ feed.content }}</div>
+        <div style="text-align: left; margin-left: 20px;"><b>{{ feed.nickname }}</b> {{ feed.content }}</div>
         <div style="text-align: left; font-size: 14px; margin-left: 20px;"><b>aaaa</b> 나도 일본 여행 ㅠㅠㅠㅠ</div>
         <div style="text-align: left; font-size: 14px; margin-left: 20px;"><b>bbbb</b> 코로나 끝나면 바로 가자</div>
         <div style="border-top: 1px solid gray; height: 45px; margin-top: 10px;">
@@ -138,15 +164,15 @@
       <div>
         <div style="display: flex; flex-direction: row; align-items: center; margin: 10px;">
           <div style="width: 66px; height: 66px; border-radius: 70%; overflow: hidden;">
-            <img src="https://mblogthumb-phinf.pstatic.net/20150202_99/chaejhh_1422874976569skK38_JPEG/%3F%3F%3F%3F%3F_edit.jpg?type=w2"
+            <img src="{% get_media_prefix %}{{ user.profile_image }}"
                  style="width: 100%; height: 100%; object-fit: cover;">
           </div>
           <div style="margin-left: 20px;">
             <div style="text-align: left;">
-              <b>kkammoo_</b>
+              <b>{{ user.nickname }}</b>
             </div>
             <div style="color:rgba(25,25,25,0.5); text-align: left;">
-              kimmoonyoun
+              {{ user.name }}
             </div>
           </div>
         </div>
@@ -324,6 +350,7 @@
 
   // 새 이미지 등록
   $('#nav_bar_add_box').click(function () {
+    console.log('add 버튼 클릭함!')
     $('#first_modal').css({display: 'flex'})
     $('body').css({overflowY: 'hidden'})
   });
@@ -343,7 +370,7 @@
   function dragOver(e) {
     e.stopPropagation();
     e.preventDefault();
-    if (e.type == "dragover") {
+    if (e.type === "dragover") {
       $(e.target).css({
         "border": "2px dotted gray",
 
@@ -378,8 +405,8 @@
         let file = files[0];
         let image = files[0].name;
         let content = $('#input_feed_content').val();
-        let user_id = 'kkammoo_';
-        let profile_image = 'https://mblogthumb-phinf.pstatic.net/20150202_99/chaejhh_1422874976569skK38_JPEG/%3F%3F%3F%3F%3F_edit.jpg?type=w2';
+        let user_id = '{{ user.nickname }}';
+        let profile_image = '{{ user.profile_image }}';
 
 
         let fd = new FormData();

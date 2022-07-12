@@ -18,14 +18,27 @@ class Main(APIView):
 
         # select * from content_feed (둥록된 순으로 출력 - 최근이 가장 아래)
         # order by로 오름차순, 내림차순으로 정렬 가능 (디폴트는 오름차순, - 붙이면 내림차순)
-        feed_list = Feed.objects.all().order_by('-id')
-        email = request.session['email']
-        print('로그인한 사용자 : ' + email)
+        feed_object_list = Feed.objects.all().order_by('-id')
+        feed_list = []
+
+        for feed in feed_list:
+            user = User.objects.filer(email=feed.email).first()
+            feed_list.append(dict(image=feed.image,
+                                  content=feed.content,
+                                  like_count=feed.like_count,
+                                  profile_image=user.profile_image,
+                                  nickname=user.nickname
+                                  ))
+
+        # 로그인 정보 세션에 담기, email 정보가 없으면 None
+        email = request.session.get('email', None)
+
         if email is None:
             return render(request, "user/login.html")
-        elif user is None:
 
         user = User.objects.filter(email=email).first()
+        if user is None:
+            return render(request, "user/login.html")
 
         return render(request, "instagramClone/main.html", context=dict(feeds=feed_list, user=user))
 
@@ -42,12 +55,24 @@ class UploadFeed(APIView):
             for chunk in file.chunks():
                 destination.write(chunk)
 
-        file = request.data.get('file')
         image = uuid_name
         content = request.data.get('content')
-        user_id = request.data.get('user_id')
-        profile_image = request.data.get('profile_image')
+        email = request.session.get('email', None)
 
-        Feed.objects.create(image=image, content=content, user_id=user_id, profile_image=profile_image, like_count=0)
+        Feed.objects.create(image=image, content=content, email=email, like_count=0)
 
         return Response(status=200)
+
+
+class Profile(APIView):
+    def get(self, request):
+        email = request.session.get('email', None)
+
+        if email is None:
+            return render(request, "user/login.html")
+
+        user = User.objects.filter(email=email).first()
+        if user is None:
+            return render(request, "user/login.html")
+
+        return render(request, 'content/profile.html', context=dict(user=user))
