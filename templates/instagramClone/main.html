@@ -149,11 +149,16 @@
         <div style="text-align: left; font-size: 14px; margin-left: 20px;">춘식이 <b>외 {{ feed.like_count }}명</b>이 좋아합니다.
         </div>
         <div style="text-align: left; margin-left: 20px;"><b>{{ feed.nickname }}</b> {{ feed.content }}</div>
-        <div style="text-align: left; font-size: 14px; margin-left: 20px;"><b>aaaa</b> 나도 일본 여행 ㅠㅠㅠㅠ</div>
-        <div style="text-align: left; font-size: 14px; margin-left: 20px;"><b>bbbb</b> 코로나 끝나면 바로 가자</div>
-        <div style="border-top: 1px solid gray; height: 45px; margin-top: 10px;">
-          <input type="text" class="form-control" placeholder="댓글 달기.."
+        {% for reply in feed.reply_list %}
+          <div style="text-align: left; font-size: 14px; margin-left: 20px;">
+            <b>{{ reply.nickname }}</b> {{ reply.reply_content }}</div>
+        {% endfor %}
+        <div style="display:flex; flex-direction:row; align-items: center; border-top: 1px solid gray; height: 45px; margin-top: 10px;">
+          <input id="reply_{{ feed.id }}" type="text" class="form-control" placeholder="댓글 달기.."
                  style="border: none; box-shadow: none; outline: none;">
+          <div feed_id="{{ feed.id }}" class="upload_reply"
+               style="width:50px; color: cornflowerblue; font-weight: bold; margin-right: 15px;">게시
+          </div>
         </div>
       </div>
     {% endfor %}
@@ -345,9 +350,6 @@
 <!-- Optional JavaScript; choose one of the two! -->
 <script>
   let files;
-
-  // 버튼 자바스크립트
-
   // 새 이미지 등록
   $('#nav_bar_add_box').click(function () {
     console.log('add 버튼 클릭함!')
@@ -405,8 +407,6 @@
         let file = files[0];
         let image = files[0].name;
         let content = $('#input_feed_content').val();
-        let user_id = '{{ user.nickname }}';
-        let profile_image = '{{ user.profile_image }}';
 
 
         let fd = new FormData();
@@ -414,8 +414,6 @@
         fd.append('file', file);
         fd.append('image', image);
         fd.append('content', content);
-        fd.append('user_id', user_id);
-        fd.append('profile_image', profile_image);
 
         $.ajax({
           url: "/content/upload",
@@ -448,6 +446,14 @@
     }
 
   }
+</script>
+<script>
+  // 댓글 스크립트
+  $('.upload_reply').click(function (event) {
+    let feed_id = event.target.attributes.getNamedItem('feed_id').value;
+    let reply_id = 'reply_' + feed_id;
+    reply_content = $('#' + reply_id).val()
+  })
 </script>
 
 <!-- Option 1: Bootstrap Bundle with Popper -->

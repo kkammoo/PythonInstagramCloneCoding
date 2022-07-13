@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 
 from instagramClone.settings import MEDIA_ROOT
 from user.models import User
-from .models import Feed
+from .models import Feed, Reply
 
 
 class Main(APIView):
@@ -21,14 +21,22 @@ class Main(APIView):
         feed_object_list = Feed.objects.all().order_by('-id')
         feed_list = []
 
-        for feed in feed_list:
-            user = User.objects.filer(email=feed.email).first()
-            feed_list.append(dict(image=feed.image,
+        for feed in feed_object_list:
+            user = User.objects.filter(email=feed.email).first()
+            reply_object_list = Reply.objects.filter(feed_id=feed.id)
+            reply_list = []
+            for reply in reply_object_list:
+                user = User.objects.filter(email=reply.email).first()
+                reply_list.append(dict(reply_content=reply.reply_content,
+                                       nickname=user.nickname))
+
+            feed_list.append(dict(id=feed.id,
+                                  image=feed.image,
                                   content=feed.content,
                                   like_count=feed.like_count,
                                   profile_image=user.profile_image,
-                                  nickname=user.nickname
-                                  ))
+                                  nickname=user.nickname,
+                                  reply_list=reply_list))
 
         # 로그인 정보 세션에 담기, email 정보가 없으면 None
         email = request.session.get('email', None)
@@ -40,7 +48,7 @@ class Main(APIView):
         if user is None:
             return render(request, "user/login.html")
 
-        return render(request, "instagramClone/main.html", context=dict(feeds=feed_list, user=user))
+        return render(request, "instagramClone/main.html", context=dict(feed_list=feed_list, user=user))
 
 
 class UploadFeed(APIView):
@@ -76,3 +84,14 @@ class Profile(APIView):
             return render(request, "user/login.html")
 
         return render(request, 'content/profile.html', context=dict(user=user))
+
+
+class UploadReply(APIView):
+    def post(self, request):
+        feed_id = request.data.get('feed_id', None)
+        reply_content = request.data.get('reply_content', None)
+        email = request.session.get('email', None)
+
+        Reply.objects.create(feed_id=feed_id, reply_content=reply_content, email=email)
+
+        return Response(status=200)
