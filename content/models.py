@@ -7,7 +7,6 @@ class Feed(models.Model):
     content = models.TextField()  # 글 내용
     image = models.TextField()  # 피드 이미지
     email = models.EmailField(default='')  # 글쓴이
-    like_count = models.IntegerField()  # 좋아요 수
 
 
 # TextField, IntegerField, FloatField, BooleanField... : DB에 저장 되는 값의 타입
